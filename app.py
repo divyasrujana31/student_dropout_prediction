@@ -31,7 +31,7 @@ if st.button('🔮 Predict'):
 
     # Check for missing values
     if np.any(np.isnan(input_data)):
-        st.error("Please fill out all fields.")
+        st.error("Please fill out all fields. No missing values allowed.")
     else:
         # Make prediction
         prediction = model.predict(input_data)
@@ -54,3 +54,4 @@ if st.button('🔮 Predict'):
 
         # Display pie chart in Streamlit
         st.pyplot(fig)
+
