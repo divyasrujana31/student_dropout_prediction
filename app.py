@@ -29,29 +29,31 @@ if st.button('🔮 Predict'):
     # Prepare the input data (ensure it is a 2D array)
     input_data = np.array([[G1, G2, studytime, failures, absences]])
 
-    # Check for missing values
-    if np.any(np.isnan(input_data)):
-        st.error("Please fill out all fields. No missing values allowed.")
+    # Check if any input is NaN or invalid and handle it
+    if np.any(np.isnan(input_data)) or np.any(input_data < 0):
+        st.error("Please ensure all fields are filled out correctly. No negative values or missing values allowed.")
     else:
         # Make prediction
-        prediction = model.predict(input_data)
-        prediction_proba = model.predict_proba(input_data)
+        try:
+            prediction = model.predict(input_data)
+            prediction_proba = model.predict_proba(input_data)
 
-        # Show confidence
-        confidence = np.max(prediction_proba) * 100
+            # Show confidence
+            confidence = np.max(prediction_proba) * 100
 
-        # Display prediction result with confidence
-        if prediction[0] == 1:
-            st.error(f'⚠️ The student is at risk of dropping out. Confidence: {confidence:.2f}%')
-        else:
-            st.success(f'✅ The student is NOT at risk of dropping out. Confidence: {confidence:.2f}%')
+            # Display prediction result with confidence
+            if prediction[0] == 1:
+                st.error(f'⚠️ The student is at risk of dropping out. Confidence: {confidence:.2f}%')
+            else:
+                st.success(f'✅ The student is NOT at risk of dropping out. Confidence: {confidence:.2f}%')
 
-        # Pie chart for prediction probabilities
-        labels = ['Not Dropout', 'Dropout']
-        fig, ax = plt.subplots()
-        ax.pie(prediction_proba[0], labels=labels, autopct='%1.1f%%', startangle=90)
-        ax.axis('equal')  # Equal aspect ratio ensures the pie chart is a circle.
+            # Pie chart for prediction probabilities
+            labels = ['Not Dropout', 'Dropout']
+            fig, ax = plt.subplots()
+            ax.pie(prediction_proba[0], labels=labels, autopct='%1.1f%%', startangle=90)
+            ax.axis('equal')  # Equal aspect ratio ensures the pie chart is a circle.
 
-        # Display pie chart in Streamlit
-        st.pyplot(fig)
-
+            # Display pie chart in Streamlit
+            st.pyplot(fig)
+        except Exception as e:
+            st.error(f"Error during prediction: {e}")
