@@ -1,5 +1,3 @@
-# app.py
-
 import streamlit as st
 import pickle
 import numpy as np
@@ -28,26 +26,31 @@ st.write("Click the button below to make a prediction:")
 
 # Predict button
 if st.button('🔮 Predict'):
-    # Prepare the input data
+    # Prepare the input data (ensure it is a 2D array)
     input_data = np.array([[G1, G2, studytime, failures, absences]])
-    
-    # Make prediction
-    prediction = model.predict(input_data)
-    prediction_proba = model.predict_proba(input_data)
 
-    # Show confidence
-    confidence = np.max(prediction_proba) * 100
-
-    if prediction[0] == 1:
-        st.error(f'⚠️ The student is at risk of dropping out. Confidence: {confidence:.2f}%')
+    # Check for missing values
+    if np.any(np.isnan(input_data)):
+        st.error("Please fill out all fields.")
     else:
-        st.success(f'✅ The student is NOT at risk of dropping out. Confidence: {confidence:.2f}%')
+        # Make prediction
+        prediction = model.predict(input_data)
+        prediction_proba = model.predict_proba(input_data)
 
-    # Add Pie Chart Visualization
-    st.subheader("📊 Prediction Probability Chart")
+        # Show confidence
+        confidence = np.max(prediction_proba) * 100
 
-    labels = ['Not Dropout', 'Dropout']
-    fig, ax = plt.subplots()
-    ax.pie(prediction_proba[0], labels=labels, autopct='%1.1f%%', startangle=90, colors=['#00cc99', '#ff6666'])
-    ax.axis('equal')  # Equal aspect ratio ensures that pie is drawn as a circle.
-    st.pyplot(fig)
+        # Display prediction result with confidence
+        if prediction[0] == 1:
+            st.error(f'⚠️ The student is at risk of dropping out. Confidence: {confidence:.2f}%')
+        else:
+            st.success(f'✅ The student is NOT at risk of dropping out. Confidence: {confidence:.2f}%')
+
+        # Pie chart for prediction probabilities
+        labels = ['Not Dropout', 'Dropout']
+        fig, ax = plt.subplots()
+        ax.pie(prediction_proba[0], labels=labels, autopct='%1.1f%%', startangle=90)
+        ax.axis('equal')  # Equal aspect ratio ensures the pie chart is a circle.
+
+        # Display pie chart in Streamlit
+        st.pyplot(fig)
